@@ -26,7 +26,7 @@ resistors and a single diode for over-voltage from the cassette interface
 Actual PCB has not been built and verified yet, only a strip board construction
 that "should" be identical.
 
-Since there is so many ideas of the connectors I made them as simple
+Since there are so many ideas of the connectors I made them as simple
 pin and hole headers so there is no on-board fittings for RCA-jacks, 3.5mm
 keyboard or similar since the chance of you obtaining whatever I got hold
 of would be near-zero, just dive into that junkbox you got and see what
