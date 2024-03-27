@@ -1,0 +1,112 @@
+# User Constraint File for BlackIcei Mx Acorn Atom (Ice40Atom)
+
+# Onboard 25MHz oscillator
+set_io clk_100mhz J3
+
+set_io led1 M12
+set_io led2 R16
+
+set_io but1 K11
+set_io but2 P13
+
+# Physical config switches
+set_io video_mode F3
+set_io ram_size H3
+
+# Keyboard - Matches Digilent PmodPS/2 
+set_io ps2_clk           G3 #
+set_io ps2_data          E2 # 
+
+set_io csync J5
+set_io lum H2
+
+set_io ear F1
+
+# This is actually "line out", mic shares with video pin zx original style
+set_io mic H4
+
+# VGA Output - Matches Digilent PmodVGA
+#set_io red[3]           E4 # 
+#set_io red[2]           R2 # 
+#set_io red[1]           N5 #
+#set_io red[0]           T2 # 
+
+#set_io green[3]         B2 # 
+#set_io green[2]         P5 # 
+#set_io green[1]         R3 # 
+#set_io green[0]         R5 # 
+
+#set_io blue[3]          F5 # 
+#set_io blue[2]          T3 # 
+#set_io blue[1]          R4 # 
+#set_io blue[0]          M7 # 
+
+# ext 16k mem
+set_io cs_n T6
+set_io oe_n L9
+set_io we_n T7
+
+
+set_io a[0] N6
+set_io a[1] T1
+set_io a[2] P4
+set_io a[3] R2
+set_io a[4] N5
+set_io a[5] T2
+set_io a[6] P5
+set_io a[7] R3
+set_io a[8] R5
+set_io a[9] T3
+set_io a[10] R4
+set_io a[11] M7
+set_io a[12] N7
+set_io a[13] P6
+set_io a[14] M8
+set_io a[15] T5
+set_io a[16] R6
+set_io a[17] P8
+
+set_io d[0] T8
+set_io d[1] P7
+set_io d[2] N9
+set_io d[3] T9
+set_io d[4] M9
+set_io d[5] R9
+set_io d[6] K9
+set_io d[7] P9
+
+
+#set_io dbg_key[0] C2 # 
+#set_io dbg_key[1] F4 # 
+#set_io dbg_key[2] D2 # 
+#set_io dbg_key[3] G5 # 
+#set_io dbg_key[4] D1 # 
+#set_io dbg_key[5] G4 # 
+#set_io dbg_key[6] E3 # 
+#set_io dbg_key[7] H5 # 
+
+# salae port
+# testch0 C2 # 
+# testch1 F4 # 
+# testch2 D2 # 
+# testch3 G5 # 
+# testch4 D1 # 
+# testch5 G4 # 
+# testch6 E3 # 
+# testch7 H5 # 
+
+
+# salae port
+set_io testch[0] C2 # 
+set_io testch[1] F4 # 
+set_io testch[2] D2 # 
+set_io testch[3] G5 # 
+set_io testch[4] D1 # 
+set_io testch[5] G4 # 
+set_io testch[6] E3 # 
+set_io testch[7] H5 # 
+
+# Serial port monitor
+set_io rx F2 # receives to serial adaptor
+set_io tx H6 # sends from serial adaptor
+
