@@ -1,0 +1,36 @@
+Here is a cool demo you can do if you have a serial module six-pin.
+There is a resistor network that takes down the 5volt types down,
+theoretically the read-line to the module could also have some pull-ups
+that could be damaging to FPGA cmos but so far this has not happened,
+using an all 3.3 volt serial might be advisable.
+
+Here is the demo in which we surgically change the code from the outside
+world.
+
+I use minicom on Linux for this, 115200 No parity 8bits
+
+Prepare the zeddy with a line like this "10 REM BRANDT"
+
+  First we (h)alt the CPU
+
+h
+OK  (screen goes blank)
+
+  Then we write into the linear memory SRAM on address 00082h
+  (remember that this then maps to the Zeddy on address 4082h)
+
+w 00082 a7.
+OK
+
+  Now we start the Zeddy again:
+
+g
+OK
+
+  And doing "LIST" we should see that the "B" has now turned into inverse
+  video.
+
+Immensly funny...
+
+Thats all for now!
+
