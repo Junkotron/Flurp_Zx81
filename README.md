@@ -1,5 +1,6 @@
-# "Flurp zx81" on an fpga lots of stuff borrowed from "Blackice MX ZX81"
-# Now for use on the Olimex ice40 8k board.
+"Flurp zx81" on an fpga lots of stuff borrowed from "Blackice MX ZX81"
+Now for use on the Olimex ice40 8k board, "iCE40HX8K-EVB", other
+boards may work but needs some adaptations..
 
 So finally here is some kind of release, the code could still use some
 cleanup.
@@ -25,6 +26,8 @@ resistors and a single diode for over-voltage from the cassette interface
 
 Actual PCB has not been built and verified yet, only a strip board construction
 that "should" be identical.
+
+The Olimex board has to be programmed to work, see "Firmware.txt" for this.
 
 Since there are so many ideas of the connectors I made them as simple
 pin and hole headers so there is no on-board fittings for RCA-jacks, 3.5mm

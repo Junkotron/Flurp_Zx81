@@ -1,0 +1,29 @@
+The Olimex board has to be programmed. I included a pre-built image if
+you do not want to try the full synthesis chain with yosys and friends
+
+It is all open-source now and Olimex has great support on their web page.
+
+Anyway I recommend getting the "32u2" programmer also from the same company
+It is most likely possible to use some other device but if you like me
+dont need yet another hobby this is a great time-saver.
+
+One connects the programmer to the fpga board via a 10-pin ribbon cable
+(do not confuse this with the "Flurp" boards connector for Logic analyzer).
+
+Then the programmer goes into the host PC via a USB cable.
+
+The programmer needs to be programmed with the firmware, this is most
+easily done via the Arduino gui and the .ino, again check out olimex
+pages for this.
+
+Once you gotten through the flashing led examples for the ice40 8k board
+you can try to just download the firmware in the ice40hx8k/bin/
+folder (toplevel.bin) via:
+
+> sudo iceprogduino bin/toplevel.bin
+
+or to check the whole sythesis toolchain, just type
+
+> make
+
+...
