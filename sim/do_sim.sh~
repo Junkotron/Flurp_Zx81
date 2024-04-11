@@ -1,5 +1,0 @@
-#!/bin/sh
-
-iverilog -o cmdline cmdline.v cmdline_test.v 
-./cmdline  < finito.txt 
-./svcd cmdline.vcd
