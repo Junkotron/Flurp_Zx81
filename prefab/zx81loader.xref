@@ -1,0 +1,30 @@
+184 bytes code generated and 27 labels defined
+       Cross reference:
+      symbol value hexa  line
+     AFSAVER   528  210    17
+     AFSTACK   530  212    19
+        CONT   684  2ac   117
+     HLSAVER   530  212    21
+       PIVOT   519  207     5
+       REGAF   534  216    27
+      REGAFP   542  21e    33
+       REGBC   536  218    29
+      REGBCP   544  220    35
+       REGDE   538  21a    30
+      REGDEP   546  222    36
+      REGEND   554  22a    43
+       REGHL   540  21c    31
+      REGHLP   548  224    37
+   REGISTERS   532  214    24
+       REGIX   550  226    39
+       REGIY   552  228    40
+       REGSP   532  214    25
+        REST   555  22b    48
+     RESTORE   627  273    87
+      RWFLAG   554  22a    45
+        SEMA   521  209     7
+     SPSAVER   526  20e    15
+       STACK   536  218    28
+      STACKP   544  220    34
+        WAIT   687  2af   120
+   WATERMARK   522  20a    12
