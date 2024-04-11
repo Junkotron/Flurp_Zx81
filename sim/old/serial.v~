@@ -1,0 +1,102 @@
+
+
+module serial
+  (clock,
+   reset,
+   dce_rxd,
+   dce_txd,
+   receive_data);
+
+   input clock;
+   input reset;
+   input dce_rxd;
+   output dce_txd;
+   output reg [7:0] receive_data;
+
+//   assign receive_data = rcv_sr;
+
+   // 100 mhz clock 868 gives abt 115207 baud
+   parameter rcv_bit_per = 868;
+   
+   parameter half_rcv_bit_per = 434;
+
+   parameter timeout=100000000;
+      
+   //--State Definitions--
+   parameter ready = 2'b00;
+   parameter start_bit = 2'b01;
+   parameter data_bits = 2'b10;
+   parameter stop_bit = 2'b11;
+
+   // recover after 1s so we keep 100 million counts here :-)
+   reg [26:0] 	counter;
+   reg [3:0] 	data_bit_count;
+   reg [7:0] 	rcv_sr;
+   reg [1:0] 	state;
+
+   // loop for now
+   assign dce_txd=dce_rxd;
+   
+   always @(posedge clock)
+     begin
+
+	if (reset==1 | counter==timeout)
+	  begin
+	     counter = 0;
+	     data_bit_count=4'b0000;
+	     state=ready;
+	  end
+	else
+	  begin
+	     case (state)
+	       ready:
+		 begin
+		    if (dce_rxd == 0)
+		      begin
+			 state=start_bit;
+			 counter=0;
+		      end
+		 end
+	       start_bit:
+		 begin
+		    if (counter==half_rcv_bit_per)
+		      begin
+			 state=data_bits;
+			 counter=0;
+			 data_bit_count=4'b0;
+		      end
+		 end
+	       data_bits:
+		 begin
+		    if (counter==rcv_bit_per)
+		      begin
+			 // time to sample mid-bit
+			 rcv_sr = { dce_rxd, rcv_sr[7:1] };
+//			 rcv_sr = { dce_rxd, rcv_sr[6:0] };
+			 data_bit_count++;
+			 counter=0;
+			 if (data_bit_count==8)
+			   begin
+			      receive_data=rcv_sr;
+//			      receive_data[0]=rcv_sr[0];
+			      state=stop_bit;
+			   end
+		      end
+		 end
+	       stop_bit:
+		 begin
+		    // Half a databit remaining then we await the stop bit
+		    if (counter== (rcv_bit_per + half_rcv_bit_per))
+		      begin
+			 counter = 0;
+			 data_bit_count=4'b0000;
+			 state=ready;
+		      end
+		 end
+	     endcase
+	     if (state != ready) counter++;
+	     
+	  end
+     end
+
+endmodule

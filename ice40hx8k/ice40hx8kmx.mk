@@ -1,5 +1,5 @@
 bin/toplevel.bin : bin/toplevel.asc
-	icepack bin/toplevel.asc bin/toplevel.bin
+	icepack bin/toplevel.asc bin/toplevel.bin ; cp bin/toplevel.bin ../prefab/toplevel_hx8k.bin
 
 bin/toplevel.json : ${VERILOG_FILES}
 	mkdir -p bin

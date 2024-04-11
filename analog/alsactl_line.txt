@@ -1,0 +1,1 @@
+alsactl -f my_alsa_mixer_conf restore 1

@@ -14,7 +14,6 @@ module rom (
    integer 		      i;
    initial begin
       $readmemh ("../src/mem/zx8x.hex", mem);
-//      $readmemh ("../src/mem/aszmic.hex", mem);
    end
 
    always @(posedge clk) begin

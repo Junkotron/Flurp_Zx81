@@ -1,0 +1,228 @@
+state.usbtv {
+	control {
+	}
+}
+state.ICUSBAUDIO7D {
+	control.1 {
+		iface PCM
+		name 'Playback Channel Map'
+		value.0 0
+		value.1 0
+		value.2 0
+		value.3 0
+		value.4 0
+		value.5 0
+		value.6 0
+		value.7 0
+		comment {
+			access read
+			type INTEGER
+			count 8
+			range '0 - 36'
+		}
+	}
+	control.2 {
+		iface PCM
+		name 'Capture Channel Map'
+		value.0 0
+		value.1 0
+		comment {
+			access read
+			type INTEGER
+			count 2
+			range '0 - 36'
+		}
+	}
+	control.3 {
+		iface MIXER
+		name 'Mic Playback Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.4 {
+		iface MIXER
+		name 'Mic Playback Volume'
+		value.0 8058
+		value.1 8058
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 8065'
+			dbmin -2400
+			dbmax 750
+			dbvalue.0 747
+			dbvalue.1 747
+		}
+	}
+	control.5 {
+		iface MIXER
+		name 'Line Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.6 {
+		iface MIXER
+		name 'Line Playback Volume'
+		value.0 6288
+		value.1 6288
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 8065'
+			dbmin -2400
+			dbmax 750
+			dbvalue.0 55
+			dbvalue.1 55
+		}
+	}
+	control.7 {
+		iface MIXER
+		name 'Speaker Playback Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.8 {
+		iface MIXER
+		name 'Speaker Playback Volume'
+		value.0 173
+		value.1 173
+		value.2 102
+		value.3 102
+		value.4 100
+		value.5 100
+		value.6 100
+		value.7 100
+		comment {
+			access 'read write'
+			type INTEGER
+			count 8
+			range '0 - 197'
+			dbmin -3693
+			dbmax 0
+			dbvalue.0 -450
+			dbvalue.1 -450
+			dbvalue.2 -1781
+			dbvalue.3 -1781
+			dbvalue.4 -1819
+			dbvalue.5 -1819
+			dbvalue.6 -1819
+			dbvalue.7 -1819
+		}
+	}
+	control.9 {
+		iface MIXER
+		name 'Mic Capture Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.10 {
+		iface MIXER
+		name 'Mic Capture Volume'
+		value.0 0
+		value.1 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 6928'
+			dbmin -1600
+			dbmax 1106
+			dbvalue.0 -1600
+			dbvalue.1 -1600
+		}
+	}
+	control.11 {
+		iface MIXER
+		name 'Line Capture Switch'
+		value true
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.12 {
+		iface MIXER
+		name 'Line Capture Volume'
+		value.0 5734
+		value.1 5734
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 6928'
+			dbmin -1600
+			dbmax 1106
+			dbvalue.0 639
+			dbvalue.1 639
+		}
+	}
+	control.13 {
+		iface MIXER
+		name 'IEC958 In Capture Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.14 {
+		iface MIXER
+		name 'PCM Capture Switch'
+		value false
+		comment {
+			access 'read write'
+			type BOOLEAN
+			count 1
+		}
+	}
+	control.15 {
+		iface MIXER
+		name 'PCM Capture Volume'
+		value.0 0
+		value.1 0
+		comment {
+			access 'read write'
+			type INTEGER
+			count 2
+			range '0 - 6928'
+			dbmin -1600
+			dbmax 1106
+			dbvalue.0 -1600
+			dbvalue.1 -1600
+		}
+	}
+	control.16 {
+		iface MIXER
+		name 'PCM Capture Source'
+		value Line
+		comment {
+			access 'read write'
+			type ENUMERATED
+			count 1
+			item.0 Mic
+			item.1 Line
+			item.2 'IEC958 In'
+			item.3 Mixer
+		}
+	}
+}

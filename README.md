@@ -1,10 +1,7 @@
-"Flurp zx81" on an fpga lots of stuff borrowed from "Blackice MX ZX81"
-Now for use on the Olimex ice40 8k board, "iCE40HX8K-EVB", other
-boards may work but needs some adaptations..
+# "Flurp zx81" on an fpga lots of stuff borrowed from "Blackice MX ZX81"
+# Now for use on the Olimex ice40 8k board.
 
-So finally here is some kind of release, the code could still use some
-cleanup.
-
+Second release some cleanup done but some elephants still remain
 
 Features so far of the "Flurp"
 
@@ -13,7 +10,7 @@ Features so far of the "Flurp"
 * mic/ear/line for playing and recording sound files
 * PS/2 keyboard connector (works with most USB keyboards)
 * A debug port for a logic analyzer
-* A serial port (mostly experimental)
+* Serial port can now fairly reliably quick load programs
 * 5 volt in from mobile charger, USB or similar
 
 "Flurp" PCB drawings in kicad all in 0.1" grid so "banana finger" is no excuse
@@ -24,23 +21,32 @@ Components as far as I know can still be obtained, caps, connectors,
 resistors and a single diode for over-voltage from the cassette interface
 (could be omitted for the brave at heart).
 
-Actual PCB has not been built and verified yet, only a strip board construction
-that "should" be identical.
+First PCB is "in the air" as of this writing.
 
-The Olimex board has to be programmed to work, see "Firmware.txt" for this.
-
-Since there are so many ideas of the connectors I made them as simple
+Since there is so many ideas of the connectors I made them as simple
 pin and hole headers so there is no on-board fittings for RCA-jacks, 3.5mm
 keyboard or similar since the chance of you obtaining whatever I got hold
 of would be near-zero, just dive into that junkbox you got and see what
 pops up!
 I assume anyone attempting this should know their way around old-timer
-connectors.
+connectors or if you are younger, wikipedia and google for info
+on antiques :)
 
 ZX81 currently only with 1k or 16k config, one major improvement with the
 Olimex board is its 512k SRAM which we can use as we like.
+Most other boards have SDRAM and although this probably also can
+be made working I leave it as an excercise to the experts.
 Currently only 16k is used. Plans to move the ROM here as well, this
 currently resides in the internal FPGA memory.
+
+As when mentioning the ROM I sucessfully replaced the original ROM with
+the infamous "ASZMIC" rom image and got the example from the manual
+working (see aszmic.sh in speedloader/) 
+
+There is also an example of where the virtual keyboard produces a really
+long 10 REM ... line suitable for storing machine code, in the old days
+this would make your thumb go numb since this old piece of antique did not
+have key repeat..
 
 A composite output, there is an unfortunate "panache" with a wobble
 on the first text line, dont know if this is due to the almost-PAL nature
@@ -66,14 +72,17 @@ into legacy PS/2 mode with some pullups.
 If you take the usb connector, the wires in the schematic should align with
 how the physical usb port is layed out so you can start with the plus which
 use to be red and then work your way into whatever connector you have available
+You could also get a PS/2 keyboard on ebay though this more obvious option
+has not been tested.
 
 The 34-pole connector for the FPGA module (Olimex) note that the notch in
-the FPGA boards conenctor should face the nearest rim of the pcb, there is a 
+the FPGA boards connector should face the nearest rim of the pcb, there is a 
 "Notch!" silk screen marker. I'm not in any way a professional cad:er so
 I may have broken some standard ways of working concerning the connectors.
 Possibly you will use a female 0.1" headers with no notch. I found that
 adding a small dot of hot glue, let it cool off some and then press the
-module on will "mold" a notch which has been quite useful.
+module on will "mold" a notch without clogging the fpga board with glue.
+This "notch" has been quite useful for avoiding gray smoke.
 
 A "mic" output, this is made according to the originals but has as of yet
 not worked. I added a 5 volt feed in case someone wants to try to make some
@@ -97,13 +106,24 @@ via the line-out of my PC sound blaster into the "ear" of the Flurp
 .. these connectors can be omitted
 
 A connector for a six-pin serial module which is popular with Arduinos
-and similar. It is highly experimental currently (see the serialdemo.txt) for
-a fun thing it can already do. Future use would be for a speed loader of
-programs but that seemed to be more work than originally intended
-Also it was the intention that one would be able to remote-control the Zeddys
-keyboard for various automations.
+and similar. Now the speedloader is working and also you can "remote
+type" on the ZX81 keyboard.
 
-A 10-pin connector for a Logic Probe dirt cheap and really useful if you
+The olimex 32u4 or similar is used for programming the SPI flash of the
+FPGA, we sometimes need to reset the FPGA, this can be done with the
+reset button on the olimex ice40 board itself or with for instance
+> sudo iceprogduino -t
+Which reads the flash ID (but also does a full reset much faster than a full
+ reprogram)
+
+Speedloader can now both produce load files and fast load them
+Check out "speedloader.txt" for more info
+
+A way to run the ZX keyboard from this serial port is now implemented
+the speeloader/keysend.c can be used to primitively execute commands
+on the flurp, such as 'RUN' 'LOAD ""' 'NEW' etc.
+
+A 10-pin connector for a Logic Probe, dirt cheap and really useful if you
 want to dive into the FPGA firmware.
 
 Thats all for now!

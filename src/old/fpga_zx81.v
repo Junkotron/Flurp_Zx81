@@ -44,26 +44,39 @@ module fpga_zx81 (
 		  
 		  );
 
+   
+
+   reg 				    led1reg=0;
+   reg 				    led2reg=0;
+   
+   assign led1 = led1reg;
+   assign led2 = led2reg;
+
+   // make some mem mapped IO
+   always @(posedge buffer_clk) begin
+      if (mreq_n == 0 && addr==8192 && wr_n==0)
+	begin
+	   led1reg = cpu_dout[0];
+      	   led2reg = cpu_dout[1];
+	end
+      
+   end
+   
    reg 				    bank_e=0;
    reg [2:0] 			    bank_state = 0;
 
+
+   assign testch[0] = break_flag;
+   assign testch[1] = bank_e;
+   assign testch[2] = bank_state[0];
+   assign testch[3] = bank_state[1];
+   assign testch[4] = bank_state[2];
+//   assign testch[5] = (addr == 16'd16514);
+   assign testch[5] = but1;
    
-   // assign led1 = 0;
-
-   assign led2 = 0;
-
-   /* These are useful for running the analog rc filter on "ear",
-    getting data suitable for feeding into sz81 */
-   /*
-    assign testch[0] = dbg_cs;
-    assign testch[1] = dbg_data;
-    assign testch[2] = doing_load;
-    */
+   assign testch[6] = led1reg;
+   assign testch[7] = led2reg;
    
-   assign testch[2:0] = bank_state;
-   assign testch[3] = bank_e;
-   assign testch[4] = break_flag;
-
    always @(posedge buffer_clk) begin
       case (bank_state)
 	0:
@@ -76,19 +89,20 @@ module fpga_zx81 (
 	  begin
 	     // Now we wait for the pivot point when the CPU
 	     // addresses our break point fetching the first byte of
-	     // the instruction from the "new" bank
+	     // the instruction
 	     if (addr==break_addr && mreq_n==0 && m1_n==0)
-	       begin
-		  bank_state = 2;
-	     	  bank_e=1;
-	       end
+	       bank_state = 2;
 	  end
 	2:
 	  begin
-	     // So now we just wait for mreq to go high again 
+	     // So now we just wait for mreq to go high again and then do the actual
+	     // flip
 	     if (mreq_n==1)
 	       begin
-		  
+		  // CPU will now start to fetch whatever madness was put into the
+		  // sram at the corresponding address or go back to the original
+		  // ROM
+		  bank_e=1;
 		  bank_state = 3;
 	       end
 	  end
@@ -96,10 +110,7 @@ module fpga_zx81 (
 	  begin
 	     // Have we returned to the scene of the crime?
 	     if (addr==break_addr && mreq_n==0 && m1_n==0)
-	       begin
-		  bank_state=4;
-		  bank_e=0;
-	       end
+	       bank_state=4;
 	  end
 	4:
 	  begin
@@ -110,6 +121,7 @@ module fpga_zx81 (
 		  // We will execute the same mnemonic twice
 		  // so any side effects if might have must be "reversed"
 		  // before the call
+		  bank_e=0;
 		  bank_state = 5;
 	       end
 	  end
@@ -159,8 +171,7 @@ module fpga_zx81 (
    //assign led1 = {mod[0], 2'b0, key_data};
 
    //always @(posedge clk_sys) led2 <= ram_data_latch;
-   assign led1 = bank_state >= 2;
-   
+
    // We have our own pin but we get the same signal as the video
    // perhaps this is unecessary?
    assign mic = video_out;
@@ -182,7 +193,6 @@ module fpga_zx81 (
 
    // ZX81 Logic
    reg [7:0] cpu_din;
-
    wire [7:0] cpu_dout;
    wire [15:0] addr;
 
@@ -190,49 +200,8 @@ module fpga_zx81 (
    wire [11:1] Fn;
    wire [2:0]  mod;
 
-   // The remote keyboard coming in from serial
-   wire        kb_strobe;
-   wire        press;
-   wire [2:0]  row;
-   wire [2:0]  col;
-
-
-   // Quantisize this so we get same signal into cpu as we
-   // get out on the logic probe (offline simulator debug)
-   reg 	       ear_r;
-   // This will be set when instruction fetch from load code
-   reg 	       doing_load=0;
-	       
-   reg 	       dbg_cs=1;
-   reg 	       dbg_data=1;
-   
-   always @(posedge clk_sys) begin
-
-      // Start the capture of the RC filtered analog sound
-      if (~mreq_n && (addr == 16'h352 || addr == 16'h38b))
-	doing_load=1;
-      
-      if (~iorq_n)
-	begin
-	   ear_r = ear;
-	   if (doing_load)
-	     begin
-		dbg_data = ear;
-		dbg_cs = 1;
-	     end
-	end
-      else
-	begin
-	   dbg_data = 0;
-	   dbg_cs = 0;
-	end
-      
-
-   end
-
-   
 //   wire [7:0]  io_dout = kbd_n ? 8'hff : {1'b0, video_mode_r, 1'b0, key_data};
-   wire [7:0]  io_dout = kbd_n ? 8'hff : {ear_r, video_mode_r, 1'b0, key_data};
+   wire [7:0]  io_dout = kbd_n ? 8'hff : {ear, video_mode_r, 1'b0, key_data};
 
    // When refresh is low, the ram_data_latch and row_counter are used to load
    // pixels corresponding to a character from the font in the rom
@@ -459,10 +428,8 @@ module fpga_zx81 (
 			  .key_data(key_data),
 			  .Fn(Fn),
 			  .mod(mod),
-			  .strobe(kb_strobe),
-			  .press(press),
-			  .row(row),
-			  .col(col),
+			  .but1(but1),
+			  .but2(but2),
 			  );
 
    // Just pass composite video back to top level and pins
@@ -499,16 +466,13 @@ module fpga_zx81 (
       oe_n <= ri ? ri_oe_n : rd_n | mreq_n | ~ext_ram_e_sel;
 
       // Ram injector can use full ram address range
-//      areg[13:0] <= bank_e ? { 0, addr[12:0] } : (ri ? ri_addr[13:0] : addr[13:0]);
-      areg[13:0] <= ri ? ri_addr[13:0] : (bank_e ? { 0, addr[12:0] } : addr[13:0]);
-
+      areg[13:0] <= bank_e ? { 0, addr[12:0] } : (ri ? ri_addr[13:0] : addr[13:0]);
       
       // bank_e should now use 8k of the next 16k in the linear
       // sram area, so the start of rom area is from 16384 dec and on
       // when accessing from the ram inject mode (with the z80 halted
       // via BUSRQ.
-//      areg[17:14] <= bank_e ? (rom_e ? 4'b0001 : 4'b0000) : (ri ? ri_addr[17:14] : 4'b0);
-      areg[17:14] <= ri ? ri_addr[17:14] : (bank_e ? (rom_e ? 4'b0001 : 4'b0000) : 4'b0);
+      areg[17:14] <= bank_e ? (rom_e ? 4'b0001 : 4'b0000) : (ri ? ri_addr[17:14] : 4'b0);
       
       dataextmem <= ri ? ri_data : cpu_dout;
       
@@ -523,38 +487,53 @@ module fpga_zx81 (
       .buff(dmem),
       );
 
+   wire data_avail;
+   wire send_strobe;
+   wire [7:0] send_data;
+   wire recv_strobe;
+   wire [7:0] receive_data;
+   
+   // loop test
+   serial ser(
+	      .clock(buffer_clk), // 50mhz
+	      .reset(~reset_n),
+	      .dce_rxd(tx),
+	      .dce_txd(rx),
+	      .receive_data(receive_data),
+	      .recv_strobe(recv_strobe),
+	      .send_data(send_data),
+	      .send_strobe(send_strobe),
+	      .data_avail(data_avail),
+	      );
    
    wire [15:0] break_addr;
    wire        break_flag;
    
-   serperiph cmd(
-		 .clock(buffer_clk),
-		 .reset(~reset_n),
-		 .dce_rxd(tx),
-		 .dce_txd(rx),
-		 .busrq_n(send_busrq_n),
-		 .busak_n(busak_n),
-		 
-		 .ri(ri),
-		 .ri_ce_n(ri_ce_n),
-		 .ri_oe_n(ri_oe_n),
-		 .ri_we_n(ri_we_n),
-		 .ri_addr(ri_addr),
-		 .ri_data(ri_data),
-		 .ext_ram_out(ext_ram_out),
-		 .cpu_addr(addr),
-		 
-		 .break_addr(break_addr),
-		 .break_flag(break_flag),
-		 
-		 .do_reset(do_reset),
-		 .kb_strobe(kb_strobe),
-		 .press(press),
-		 .row(row),
-		 .col(col),
+   cmdline cmd(
+	       .clock(buffer_clk),
+	       .reset(~reset_n),
+	       .receive_data(receive_data),
+	       .recv_strobe(recv_strobe),
+	       .send_data(send_data),
+	       .send_strobe(send_strobe),
+	       .data_avail(data_avail),
+	       .busrq_n(send_busrq_n),
+	       .busak_n(busak_n),
 
-		 .testch(testch)
-		 );
+	       .ri(ri),
+	       .ri_ce_n(ri_ce_n),
+	       .ri_oe_n(ri_oe_n),
+	       .ri_we_n(ri_we_n),
+	       .ri_addr(ri_addr),
+	       .ri_data(ri_data),
+	       .ext_ram_out(ext_ram_out),
+	       .addr(addr),
+
+	       .break_addr(break_addr),
+	       .break_flag(break_flag),
+	       
+	       .do_reset(do_reset),
+	       );
    
      
 endmodule

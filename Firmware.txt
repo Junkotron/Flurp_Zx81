@@ -26,4 +26,9 @@ or to check the whole sythesis toolchain, just type
 
 > make
 
+
+Failing this, the toplevel_hx8k.bin file can be found in the prefab/directory
+(you still need to program the actual programmer with the arduino
+ .ino sketch or of course use an entirely different solution)
+
 ...

@@ -1,0 +1,128 @@
+
+	;; org is added here by script
+pivot:
+	jr rest
+sema:	
+	;; Here are all the variables always at 20dh starting with sema
+	defb 0          ; One byte used as semaphore (atomic enough?)
+
+	;; Watermark to check alignment
+watermark:	
+	defb 1eh, 0e7h, 0bah, 0beh
+
+spsaver:
+	defw 0
+afsaver:
+	defw 0 			; We need a hole to save the A reg regardless if r/w
+afstack:	
+	
+hlsaver:
+	defw 0			; hl also here
+
+registers:
+regsp:	defw 0
+
+regaf:	defw 0
+stack:				; stack is set one higher than highest memory
+regbc:	defw 0
+regde:	defw 0
+reghl:	defw 0
+
+regafp:	defw 0
+stackp:	
+regbcp:	defw 0
+regdep:	defw 0
+reghlp:	defw 0
+
+regix:	defw 0
+regiy:	defw 0
+
+
+regend:	
+	;; 1 if we write regs
+rwflag:
+	defb 0
+
+rest:
+	ld (spsaver),sp
+	ld sp,afstack
+	push af
+	ld a,(rwflag)
+	;; If rwflag is set we restore regs
+	cp 1
+	jr z,restore
+	;; Saving registers but first restore the originals
+	pop af
+	ld sp,(spsaver)
+
+	ld (regsp), sp
+	
+	ld (regbc), bc
+	ld (regde), de
+	ld (reghl), hl
+
+	exx
+
+	ld (regbcp), bc
+	ld (regdep), de
+	ld (reghlp), hl
+
+	exx
+
+	ld sp, stack 		; the one-element stack will push af
+	push af
+	ex af,af'
+	ld sp, stackp
+	push af
+	ex af,af'
+
+	ld (regix), ix
+	ld (regiy), iy
+
+	ld sp,(regsp)		;original sp restored so we leave house the way it was :)
+	
+	jr cont
+restore:	
+	ld sp,stack-2
+	pop af
+	ex af,af'
+	ld sp,stackp-2
+	pop af
+	ex af,af'
+	
+	ld sp,(regsp)
+
+	ld bc,(regbc)
+	ld de,(regde)
+	ld hl,(reghl)
+
+	exx
+
+	ld bc,(regbcp)
+	ld de,(regdep)
+	ld hl,(reghlp)
+
+	exx
+
+	ld ix,(regix)
+	ld iy,(regiy)
+
+	ld (spsaver),sp
+	ld sp, afstack
+	push af          	; Need to put here since wait and forward
+	ld (hlsaver),hl		; always restores from here
+	
+cont:	
+	ld hl,sema
+	
+wait:	
+	ld a,(hl)
+	cp 1            ; Has the semaphore gone high?
+	jr nz,wait      ; keep looping otherwise
+
+	pop af
+	ld hl,(hlsaver)
+	ld sp,(spsaver)
+
+	jp pivot
+

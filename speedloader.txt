@@ -1,0 +1,147 @@
+
+The speedloader is now considered "working" you need a USB serial module
+to 3.3 volt logic to use this.
+I also successfully used a 5V serial module with a voltage divider it
+seemed to work but in theory even the pull up on the RX line can damage
+the FPGA pins.
+
+Be VERY CAREFUL since there is no guidance on the orientation. I have
+BURNED ONE module doing this.
+
+Please check that the "gnd" on the module and the "gnd" on the Flurp board
+align before connection power!!!
+
+This will most certainly not work from a windows computer currently!!
+
+So now having the serial connection up and the usb cable into the Linux
+machine and knowing which device it is, most likely it will be something
+lile /dev/ttyUSBn with n being 0,1,2,... or so.
+
+So its time for the software, in case you haven't done so before enter
+the speedloader/ directory and type "./build"
+
+There are a number of development libs that need installing for this, such
+as gcc
+
+Now you should have a simple utility called "binterm" in the directory
+Try to start it with "./binterm /dev/ttyUSB0"
+
+Then type into it:
+010001 <enter>
+
+If it responds with "80" congrats, the serial is now up and running.
+
+I've included a simple example that should now be able to load via:
+
+> ./speedloader /dev/ttyUSB0 l simple
+
+(Actually you have to unpack flurp.tar.gz first)
+
+If all goes to plan, the ZX81 will flash a few times, it should type "NEW"
+(yes all by itsefl), go into blank screen meditation for a few seconds and
+then a message should appear on the screen.
+
+******* FLURP *******
+.... and then some
+
+
+So as awesome as this program is you might also want to try a program of your
+own what you need to get going is some kind of setting where you have either
+a traditional recording from tape or a way to play .wav files from a computer.
+Some people also work with something called ".p" files and convert them
+somehow.
+
+I'm not gonna be to dictatorial about this, but do try to do a "traditional"
+LOAD "" first and if that works then move on in this text.
+
+It might also be a good idea to not start with the longest program you can
+find, a full 16k load takes about seven minutes, enough time to pour a
+beer the proper way. Coincidental?
+
+So, your program is loading, now its time to make a speed loading set of
+files for it.
+
+Too (c)reate dump files:
+> ./speedloader /dev/ttyUSB0 c yourprog
+
+Again the magical flashing should appear and the machine should type:
+LOAD "" again all by itself and the stripes should begin to move.
+
+Again play the "Tortured Cat Concerto in Z Minor" and when the music
+stops, the Flurp has no way of knowing when this happens, you need to
+press <enter> in the speedloader window.
+
+Afer a few seconds the prompt should return and you would end up
+with two files:
+ yourprog_memdump16k.bin
+ yourprog_regs.bin
+
+If all goes well (I've only tried this on half a dozen or so of files)
+your program will load as normal.
+
+Now lets try a quick load, do just as above, if this is a program that
+somehow has disabled the shift-space (break) it might be necessary to
+reset the ZX81 in some traditional way or other.
+
+Too (l)oad the dumpfiles back in
+> ./speedloader /dev/ttyUSB0 l yourprog
+
+If all goes well the program should load normally within a few seconds.
+
+TADA?
+
+If all went well now is the time to try the "sieben minuten" load repeating
+the speedloader create/load stages.
+
+The tricks of the trade.
+
+(If you thought the read so far was really to techical perhaps you are not
+ the intended audience of this later section)
+
+If knowing the amount of time I would spend on this it would probably never
+have happened. Thanks to some forum posts by my predecessors
+I learned that breaking the execution at address 0207 in ROM and then
+substituting all the registers and the memory before continuing has been
+proven to work in other instances.
+
+207h is both called after a sucessful (or failed) "LOAD" but also as I
+discovered by entering NEW in the window this is the perfect opportunity
+to substitute the empty machine with an actual program.
+
+In simulators, such as the SZ81 the registers and memory are just re-loaded
+with new values instantely and then the execution continues, this is the
+"pivot point" where you can either tap the state out of the machine or enter
+a previous recorded state back into it.
+
+Unfortunately there is, to my knowledge, no simple way to read out the
+registers from the Z80 verilog code and vice versa.
+
+The RAM memory is simple enough, I just pull the "busrq_n" signal low,
+implement some counters and sequence logic that work as a traditional
+DMA and load/restore data into memory.
+
+For saving and restoring registers I resorted to implementing a shadow memory
+where the ROM is, load a snippet of machine code into this shadow ram.
+
+Then I implemented a bank-switcher that would check for when address 207h
+is accessed (together with M1 and MREQ) going low to trigger the "Pivot"
+meaning in essance that the execution continues in the shadow memory.
+
+The code then moves on to saving the registers to a reserved place in
+the shadow mem and finally waits for a semaphore in a loop.
+
+Again the busrq is pulled low and the registers are read out and finally
+the semaphore is set and the execution moves on. This time the shadow
+code jumps back to 207h and again triggers the bank switch back to the
+ordinary ROM code.
+
+It is my understanding that this call happens after any load from the tape
+interface and that therefore any program loading should work. But I am still
+to be proven wrong.
+
+There is also an "RW" flag that we will set to one if we wish to restore
+registers and leave at zero if we want to save them.
+
+Finally check out the ../asm/zx81loader.template_asm for how this util works.
+
+
